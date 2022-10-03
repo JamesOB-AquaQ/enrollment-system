@@ -32,6 +32,10 @@ INSERT INTO Student (forename,surname,enrollment_year,graduation_year)
 VALUES('Chad','Darby',2021,2024);
 INSERT INTO Student (forename,surname,enrollment_year,graduation_year)
 VALUES('Conor','McGee',2022,2025);
+INSERT INTO Student (forename,surname,enrollment_year,graduation_year)
+VALUES('Conor','McGee',2020,2024);
+INSERT INTO Student (forename,surname,enrollment_year,graduation_year)
+VALUES('Jack','McGee',2022,2026);
 
 INSERT INTO Course (course_name,subject_area,semester,credit_amount,student_capacity)
 VALUES('Statistics','Maths','SPRING2022',5,50);
@@ -39,6 +43,10 @@ INSERT INTO Course (course_name,subject_area,semester,credit_amount,student_capa
 VALUES('Astrophysics','Physics','SPRING2022',10,75);
 INSERT INTO Course (course_name,subject_area,semester,credit_amount,student_capacity)
 VALUES('Java','Computing','SPRING2022',5,100);
+INSERT INTO Course (course_name,subject_area,semester,credit_amount,student_capacity)
+VALUES('Databases','Computing','AUTUMN2021',5,100);
+INSERT INTO Course (course_name,subject_area,semester,credit_amount,student_capacity)
+VALUES('Algorithms','Computing','SPRING2023',5,100);
 
 INSERT INTO StudentCourse (student_id,course_id)
 VALUES(1,1);
@@ -50,3 +58,7 @@ INSERT INTO StudentCourse (student_id,course_id)
 VALUES(1,3);
 INSERT INTO StudentCourse (student_id,course_id)
 VALUES(2,2);
+INSERT INTO StudentCourse (student_id,course_id)
+VALUES(4,5);
+INSERT INTO StudentCourse (student_id,course_id)
+VALUES(5,4);
