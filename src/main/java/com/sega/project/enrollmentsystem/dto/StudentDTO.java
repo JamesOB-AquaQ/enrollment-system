@@ -1,18 +1,20 @@
-package com.sega.project.enrollmentsystem.entity;
+package com.sega.project.enrollmentsystem.dto;
 
-public class Student {
+import javax.validation.constraints.NotBlank;
 
-
-    private int studentId;
+public class StudentDTO {
+    @NotBlank
     private String forename;
+    @NotBlank
     private String surname;
+    @NotBlank
     private String enrollmentYear;
+    @NotBlank
     private String graduationYear;
 
-    public Student() {
+    public StudentDTO() {
     }
-    public Student(int studentId, String forename, String surname, String enrollmentYear, String graduationYear) {
-        this.studentId = studentId;
+    public StudentDTO( String forename, String surname, String enrollmentYear, String graduationYear) {
         this.forename = forename;
         this.surname = surname;
         this.enrollmentYear = enrollmentYear;
@@ -21,13 +23,7 @@ public class Student {
 
 
 
-    public int getStudentId() {
-        return studentId;
-    }
 
-    public void setStudentId(int studentId) {
-        this.studentId = studentId;
-    }
 
     public String getForename() {
         return forename;
@@ -61,14 +57,5 @@ public class Student {
         this.graduationYear = graduationYear;
     }
 
-    @Override
-    public String toString() {
-        return "\nStudent{" +
-                "studentId=" + studentId +
-                ", forename='" + forename + '\'' +
-                ", surname='" + surname + '\'' +
-                ", enrollmentYear=" + enrollmentYear +
-                ", graduationYear=" + graduationYear +
-                '}';
-    }
+
 }
