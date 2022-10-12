@@ -1,16 +1,16 @@
 package com.sega.project.enrollmentsystem.rest;
 
-public class StudentErrorResponse {
+public class CustomErrorResponse {
 
     private int status;
     private String message;
     private long timeStamp;
 
-    public StudentErrorResponse() {
+    public CustomErrorResponse() {
 
     }
 
-    public StudentErrorResponse(int status, String message, long timeStamp) {
+    public CustomErrorResponse(int status, String message, long timeStamp) {
         this.status = status;
         this.message = message;
         this.timeStamp = timeStamp;
