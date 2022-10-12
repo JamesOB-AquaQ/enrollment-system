@@ -1,7 +1,7 @@
 package com.sega.project.enrollmentsystem.jdbc;
 
 import com.sega.project.enrollmentsystem.entity.Student;
-import com.sega.project.enrollmentsystem.rest.StudentNotFoundException;
+import com.sega.project.enrollmentsystem.rest.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -31,7 +31,7 @@ public class StudentJdbcDAO {
         if (!students.isEmpty()) {
             return students.get(0);
         } else {
-            throw new StudentNotFoundException("Student id not present in database");
+            throw new EntityNotFoundException("Student id not present in database");
         }
     }
 
@@ -43,8 +43,6 @@ public class StudentJdbcDAO {
     public int insert(Student student) {
         KeyHolder keyHolder = keyHolderFactory.newGeneratedKeyHolder();
 
-//        String sql = "INSERT INTO STUDENT (forename, surname, enrollment_year, graduation_year)"+ "VALUES (\'" + student.getForename() +"\', \'"+ student.getSurname() +"\', \'"+student.getEnrollmentYear()+"\', \'"+ student.getGraduationYear()+"\')";
-//        jdbcTemplate.update(c -> c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS), keyHolder);
         jdbcTemplate.update(c -> {
             PreparedStatement ps = c.
                     prepareStatement("INSERT INTO STUDENT (forename, surname, enrollment_year, graduation_year)" + "VALUES (?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);

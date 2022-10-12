@@ -73,7 +73,7 @@ public class StudentJdbcDAOTests {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder(Arrays.asList(Map.of("StudentId", 1)));
         when(keyHolderFactory.newGeneratedKeyHolder()).thenReturn( keyHolder);
         when(jdbcTemplate.update(anyString(), anyString(), anyString(), anyString(), anyString(), any(KeyHolder.class))).thenReturn(1);
-        when(jdbcTemplate.update(anyString(), anyInt(), anyString(), anyString(), anyString(), anyString())).thenReturn(1);
+        //when(jdbcTemplate.update(anyString(), anyInt(), anyString(), anyString(), anyString(), anyString())).thenReturn(1);
         int result = studentJdbcDAO.insert(student);
         Assert.isTrue(result == 1, "Student not inserted");
     }
@@ -94,4 +94,5 @@ public class StudentJdbcDAOTests {
         int result = studentJdbcDAO.deleteById(1);
         Assert.isTrue(result == 1, "Student not deleted");
     }
+
 }
