@@ -29,13 +29,9 @@ public class StudentController {
     }
     @GetMapping("/students/{studentId}")
     public Student getStudentById(@PathVariable int studentId){
-        if(studentRepo.findById(studentId)==null){
-            throw new EntityNotFoundException("Student id not found - "+studentId);
-        }
-        System.out.println("Result: "+studentRepo.findById(studentId));
         return studentRepo.findById(studentId);
     }
-    @GetMapping("/students/name")
+    @GetMapping(path="/students", params={"forename", "surname"})
     public List<Student> getStudentsByName(@RequestParam String forename, @RequestParam String surname){
         return studentRepo.findByName(forename,surname);
     }
@@ -68,6 +64,8 @@ public class StudentController {
         studentRepo.deleteById(studentId);
         return "Deleted Student #"+studentId;
     }
+
+    //Get students by semester
 
     @ExceptionHandler
     public ResponseEntity<CustomErrorResponse> handleException(EntityNotFoundException exc) {
