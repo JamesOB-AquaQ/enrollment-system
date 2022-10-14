@@ -62,3 +62,4 @@ INSERT INTO StudentCourse (student_id,course_id)
 VALUES(4,5);
 INSERT INTO StudentCourse (student_id,course_id)
 VALUES(5,4);
+

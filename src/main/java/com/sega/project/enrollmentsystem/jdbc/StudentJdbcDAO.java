@@ -21,8 +21,13 @@ public class StudentJdbcDAO {
     public GeneratedKeyHolderFactory keyHolderFactory;
 
     public List<Student> findAll() {
-        return jdbcTemplate.query("SELECT * FROM STUDENT",
+        List<Student> students = jdbcTemplate.query("SELECT * FROM STUDENT",
                 new BeanPropertyRowMapper<>(Student.class));
+        if(students.isEmpty()) {
+            throw new EntityNotFoundException("No students found");
+        }else{
+            return students;
+        }
     }
 
     public Student findById(int id) {
@@ -36,8 +41,13 @@ public class StudentJdbcDAO {
     }
 
     public List<Student> findByName(String forename, String surname) {
-        return jdbcTemplate.query("SELECT * FROM STUDENT WHERE forename=? AND surname=?",
+        List<Student> students = jdbcTemplate.query("SELECT * FROM STUDENT WHERE forename=? AND surname=?",
                 new BeanPropertyRowMapper<>(Student.class), forename, surname);
+        if(!students.isEmpty()) {
+            return students;
+        }else{
+            throw new EntityNotFoundException("Student with name: "+forename+" "+surname+" not present in database");
+        }
     }
 
     public int insert(Student student) {
@@ -58,13 +68,24 @@ public class StudentJdbcDAO {
     }
 
     public int update(Student student) {
+        checkStudentExists(student.getStudentId());
         return jdbcTemplate.update("UPDATE STUDENT SET forename=?, surname=?, enrollment_year=?, graduation_year=? WHERE student_id=?",
                 student.getForename(), student.getSurname(), student.getEnrollmentYear(), student.getGraduationYear(), student.getStudentId());
     }
 
     public int deleteById(int id) {
+        checkStudentExists(id);
         return jdbcTemplate.update("DELETE FROM STUDENT WHERE student_id=?", id);
     }
+
+
+    public void checkStudentExists(int id) {
+        List<Student> students = jdbcTemplate.query("SELECT * FROM STUDENT WHERE student_id=?",
+                new BeanPropertyRowMapper<>(Student.class), id);
+        if (students.isEmpty())
+            throw new EntityNotFoundException("Student with id: "+id+" not present in database");
+    }
+
 
 
 }

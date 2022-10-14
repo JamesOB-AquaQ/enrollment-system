@@ -71,18 +71,19 @@ public class EnrolmentJdbcDAO {
         }
     }
 
+
     public void checkStudentExist(int studentId) {
         List<Student> students = jdbcTemplate.query("SELECT * FROM STUDENT WHERE student_id=?",
                 new BeanPropertyRowMapper<>(Student.class), studentId);
         if (students.isEmpty())
-            throw new EntityNotFoundException("Student ID not present in database");
+            throw new EntityNotFoundException("Student with ID: "+studentId+" not present in database");
     }
 
     public void checkCourseExists(int courseId) {
         List<Course> courses = jdbcTemplate.query("SELECT * FROM COURSE WHERE course_id=?",
                 new BeanPropertyRowMapper<>(Course.class), courseId);
         if (courses.isEmpty())
-            throw new EntityNotFoundException("Course ID not present in database");
+            throw new EntityNotFoundException("Course with ID: "+courseId+" not present in database");
     }
 
     public int enrollStudentInCourse(int studentId, int courseId) {
@@ -101,5 +102,11 @@ public class EnrolmentJdbcDAO {
             throw new IllegalArgumentException("Student is already enrolled in this course");
         }
         }
-
+    public int removeStudentFromCourse(int studentId, int courseId) {
+       if(checkIfStudentEnrolled(studentId, courseId)){
+           return jdbcTemplate.update("DELETE FROM StudentCourse WHERE student_id=? AND course_id=?", studentId, courseId);
+       }else{
+              throw new IllegalArgumentException("Student is not enrolled in this course");
+       }
+    }
 }

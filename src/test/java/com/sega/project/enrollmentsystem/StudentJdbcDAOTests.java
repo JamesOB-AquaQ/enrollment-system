@@ -37,7 +37,7 @@ public class StudentJdbcDAOTests {
     private GeneratedKeyHolderFactory keyHolderFactory;
 
     @Test
-    public void TestFindAllStudents() {
+    public void testFindAllStudents() {
         List<Student> students = new ArrayList<>();
         students.add(new Student(5, "John", "Smith", "2021", "2025"));
         when(jdbcTemplate.query(anyString(), any(RowMapper.class))).thenReturn(students);
@@ -45,9 +45,8 @@ public class StudentJdbcDAOTests {
         Assert.isTrue(results.size() == 1, "Should be 1 student");
     }
 
-    // Test findById
     @Test
-    public void TestFindStudentById() {
+    public void testFindStudentById() {
         List<Student> students = new ArrayList<>();
         students.add(new Student(5, "John", "Smith", "2021", "2025"));
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), anyInt())).thenReturn(students);
@@ -56,9 +55,8 @@ public class StudentJdbcDAOTests {
 
     }
 
-    // Test findByNames method
     @Test
-    public void TestFindStudentByNames() {
+    public void testFindStudentByNames() {
         List<Student> students = new ArrayList<>();
         students.add(new Student(5, "John", "Smith", "2021", "2025"));
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), anyString(), anyString())).thenReturn(students);
@@ -66,31 +64,30 @@ public class StudentJdbcDAOTests {
         Assert.notNull(results, "Student not found");
 
     }
-    // Test insert method
     @Test
-    public void TestInsertStudent() {
+    public void testInsertStudent() {
         Student student = new Student(1, "John", "Smith", "2021", "2025");
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder(Arrays.asList(Map.of("StudentId", 1)));
         when(keyHolderFactory.newGeneratedKeyHolder()).thenReturn( keyHolder);
         when(jdbcTemplate.update(anyString(), anyString(), anyString(), anyString(), anyString(), any(KeyHolder.class))).thenReturn(1);
-        //when(jdbcTemplate.update(anyString(), anyInt(), anyString(), anyString(), anyString(), anyString())).thenReturn(1);
         int result = studentJdbcDAO.insert(student);
         Assert.isTrue(result == 1, "Student not inserted");
     }
 
-    // Test update method
     @Test
-    public void TestUpdateStudent() {
+    public void testUpdateStudent() {
         Student student = new Student(1, "John", "Smith", "2021", "2025");
         when(jdbcTemplate.update(anyString(), anyString(), anyString(), anyString(), anyString(), anyInt())).thenReturn(1);
+        when(jdbcTemplate.query(anyString(), any(RowMapper.class),anyInt())).thenReturn(Arrays.asList(student));
         int result = studentJdbcDAO.update(student);
         Assert.isTrue(result == 1, "Student not updated");
     }
 
-    // Test delete method
     @Test
-    public void TestDeleteStudent() {
+    public void testDeleteStudent() {
         when(jdbcTemplate.update(anyString(), anyInt())).thenReturn(1);
+        when(jdbcTemplate.query(anyString(), any(RowMapper.class),anyInt())).thenReturn(Arrays.asList(new Student(1, "John", "Smith", "2021", "2025")));
+
         int result = studentJdbcDAO.deleteById(1);
         Assert.isTrue(result == 1, "Student not deleted");
     }

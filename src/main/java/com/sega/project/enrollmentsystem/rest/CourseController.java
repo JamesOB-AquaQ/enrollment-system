@@ -7,7 +7,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -24,7 +23,7 @@ public class CourseController {
     ModelMapper modelMapper;
 
     @GetMapping("/courses")
-    public List<Course> getStudents() {
+    public List<Course> getCourses() {
         return courseRepo.findAll();
     }
 
@@ -35,15 +34,21 @@ public class CourseController {
         return courseRepo.findById(courseId);
     }
 
-    @GetMapping("/courses/name/{courseName}")
-    public List<Course> getCourseByName(@PathVariable String courseName) {
+    @GetMapping(path = "/courses", params={"courseName"})
+    public List<Course> getCoursesByName(@RequestParam String courseName) {
         return courseRepo.findByName(courseName);
     }
 
-    @GetMapping("/courses/semester/{semester}")
-    public List<Course> getCourseBySemester(@PathVariable String semester) {
+    @GetMapping(path = "/courses", params = {"semester"})
+    public List<Course> getCoursesBySemester(@RequestParam String semester) {
         return courseRepo.findBySemester(semester);
     }
+
+    @GetMapping(path = "/courses", params = {"subject"})
+    public List<Course> getCoursesBySubject(@RequestParam String subject) {
+        return courseRepo.findBySubjectArea(subject);
+    }
+//
 
     @PostMapping("/courses")
     public String addCourse(@RequestBody @Valid Course course) {
@@ -56,22 +61,16 @@ public class CourseController {
     public ResponseEntity<String> updateCourse(@Valid @RequestBody CourseDTO courseDTO, @PathVariable @NotBlank int id) {
         Course course = modelMapper.map(courseDTO, Course.class);
         course.setCourseId(id);
-        if (courseRepo.findById(id) == null) {
-            throw new EntityNotFoundException("Student id not found - " + course.getCourseId());
-        } else {
-            courseRepo.updateCourse(course);
-            return new ResponseEntity<>("Course #" + id + " updated", HttpStatus.OK);
-        }
+        courseRepo.updateCourse(course);
+        return new ResponseEntity<>("Course #" + id + " updated", HttpStatus.OK);
+
     }
 
     @DeleteMapping("/courses/{id}")
     public ResponseEntity<String> deleteCourse(@PathVariable int id) {
-        if (courseRepo.findById(id) == null) {
-            throw new EntityNotFoundException("Course id not found - " + id);
-        } else {
             courseRepo.deleteCourse(id);
             return new ResponseEntity<>("Course #" + id + " deleted", HttpStatus.OK);
-        }
+
     }
 
 
@@ -88,7 +87,7 @@ public class CourseController {
     }
 
     @ExceptionHandler
-    public ResponseEntity<CustomErrorResponse> handleException(BindException exc) {
+    public ResponseEntity<CustomErrorResponse> handleException(Exception exc) {
 
         CustomErrorResponse error = new CustomErrorResponse();
 

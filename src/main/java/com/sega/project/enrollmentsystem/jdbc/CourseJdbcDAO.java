@@ -2,6 +2,7 @@ package com.sega.project.enrollmentsystem.jdbc;
 
 import com.sega.project.enrollmentsystem.entity.Course;
 import com.sega.project.enrollmentsystem.rest.EntityNotFoundException;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,8 +22,13 @@ public class CourseJdbcDAO {
     public GeneratedKeyHolderFactory keyHolderFactory;
 
     public List<Course> findAll() {
-        return jdbcTemplate.query("SELECT * FROM COURSE",
+        List<Course> courses = jdbcTemplate.query("SELECT * FROM COURSE",
                 new BeanPropertyRowMapper<>(Course.class));
+        if(courses.isEmpty()) {
+            throw new EntityNotFoundException("No courses found");
+        }else{
+            return courses;
+        }
     }
 
     public Course findById(int id) {
@@ -31,7 +37,7 @@ public class CourseJdbcDAO {
         if (!courses.isEmpty()) {
             return courses.get(0);
         } else {
-            throw new EntityNotFoundException("Course id with id: "+id+" not present in database");
+            throw new EntityNotFoundException("Course with id: "+id+" not present in database");
         }
     }
     public List<Course> findByName(String courseName) {
@@ -53,7 +59,15 @@ public class CourseJdbcDAO {
             throw new EntityNotFoundException("Course id not present in database");
         }
     }
-
+    public List<Course> findBySubjectArea(String subjectArea) {
+        List<Course> courses = jdbcTemplate.query("SELECT * FROM COURSE WHERE subject_area=?",
+                new BeanPropertyRowMapper<>(Course.class), subjectArea);
+        if (!courses.isEmpty()) {
+            return courses;
+        } else {
+            throw new EntityNotFoundException("Course id not present in database");
+        }
+    }
     public int insertCourse(Course course) {
         KeyHolder keyHolder = keyHolderFactory.newGeneratedKeyHolder();
 
@@ -72,15 +86,22 @@ public class CourseJdbcDAO {
 
     }
 
-    public int updateCourse(Course course) {
+    public int updateCourse(@NotNull Course course) {
+        checkCourseExists(course.getCourseId());
         return jdbcTemplate.update("UPDATE COURSE SET course_name=?, subject_area=?, semester=?, credit_amount=?, student_capacity=? WHERE course_id=?",
                 course.getCourseName(), course.getSubjectArea(), course.getSemester(), course.getCreditAmount(), course.getStudentCapacity(), course.getCourseId());
     }
 
 
     public int deleteCourse(int id) {
+        checkCourseExists(id);
         return jdbcTemplate.update("DELETE FROM COURSE WHERE course_id=?", id);
     }
-
+    public void checkCourseExists(int courseId) {
+        List<Course> courses = jdbcTemplate.query("SELECT * FROM COURSE WHERE course_id=?",
+                new BeanPropertyRowMapper<>(Course.class), courseId);
+        if (courses.isEmpty())
+            throw new EntityNotFoundException("Course ID not present in database");
+    }
 
 }

@@ -34,33 +34,43 @@ public class CourseControllerTests {
     private  static ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    public void findCourseByIdTest() throws Exception{
+    public void testFindCourseById() throws Exception{
         Mockito.when(courseJdbcDAO.findById(anyInt())).thenReturn(new Course(1,"Maths","Maths for beginners","SPRING2021",5,100));
         mockMvc.perform(MockMvcRequestBuilders.get("/api/courses/1")).andExpect(status().isOk()).andExpect(jsonPath("$.courseName", Matchers.equalTo("Maths")));
     }
 
     @Test
-    public void getCourseByNameTest() throws Exception{
+    public void testGetCoursesByName() throws Exception{
         List<Course> courses = new ArrayList<>();
         courses.add(new Course(1,"Maths","Maths for beginners","SPRING2021",5,100));
 
         Mockito.when(courseJdbcDAO.findByName("Maths")).thenReturn(courses);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/courses/name/Maths")).andExpect(status().isOk()).andExpect(jsonPath("$[0].courseName", Matchers.equalTo("Maths")));
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/courses?courseName=Maths")).andExpect(status().isOk()).andExpect(jsonPath("$[0].courseName", Matchers.equalTo("Maths")));
     }
 
     @Test
-    public void getCourseBySemesterTest() throws Exception{
+    public void testGetCoursesBySemester() throws Exception{
         List<Course> courses = new ArrayList<>();
         courses.add(new Course(1,"Maths","Maths for beginners","SPRING2021",5,100));
 
         Mockito.when(courseJdbcDAO.findBySemester("SPRING2021")).thenReturn(courses);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/courses/semester/SPRING2021")).andExpect(status().isOk()).andExpect(jsonPath("$[0].courseName", Matchers.equalTo("Maths")));
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/courses?semester=SPRING2021")).andExpect(status().isOk()).andExpect(jsonPath("$[0].courseName", Matchers.equalTo("Maths")));
     }
 
     @Test
-    public void addCourseTest() throws Exception{
+    public void testGetCoursesBySubject() throws Exception{
+        List<Course> courses = new ArrayList<>();
+        courses.add(new Course(1,"Maths","Maths for beginners","SPRING2021",5,100));
+
+        Mockito.when(courseJdbcDAO.findBySubjectArea("Maths for beginners")).thenReturn(courses);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/courses?subject="+courses.get(0).getSubjectArea())).andExpect(status().isOk()).andExpect(jsonPath("$[0].courseName", Matchers.equalTo("Maths")));
+    }
+
+    @Test
+    public void testAddCourse() throws Exception{
         Course course = new Course(1,"Maths","Maths for beginners","SPRING2021",5,100);
         mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         String json = mapper.writeValueAsString(course);
@@ -71,7 +81,7 @@ public class CourseControllerTests {
     }
 
     @Test
-    public void updateCourseTest() throws Exception{
+    public void testUpdateCourse() throws Exception{
         Course course = new Course(1,"Maths","Maths for beginners","SPRING2021",5,100);
         mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         String json = mapper.writeValueAsString(course);
@@ -79,11 +89,13 @@ public class CourseControllerTests {
         Mockito.when(courseJdbcDAO.findById(anyInt())).thenReturn(course);
         Mockito.when(courseJdbcDAO.updateCourse(any(Course.class))).thenReturn(1);
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/courses/1").contentType("application/json").content(json)).andExpect(status().isOk()).andExpect(jsonPath("$", Matchers.equalTo("Course #1 updated")));
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/courses/1").contentType("application/json").content(json)).andExpect(status().isOk()
+        ).andExpect(jsonPath("$", Matchers.equalTo("Course #1 updated")));
     }
 
+
     @Test
-    public void deleteCourseTest() throws Exception{
+    public void testDeleteCourse() throws Exception{
         Course course = new Course(1,"Maths","Maths for beginners","SPRING2021",5,100);
 
         Mockito.when(courseJdbcDAO.findById(anyInt())).thenReturn(course);

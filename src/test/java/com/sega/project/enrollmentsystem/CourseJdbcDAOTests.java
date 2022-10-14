@@ -1,7 +1,6 @@
 package com.sega.project.enrollmentsystem;
 
 import com.sega.project.enrollmentsystem.entity.Course;
-import com.sega.project.enrollmentsystem.entity.Student;
 import com.sega.project.enrollmentsystem.jdbc.CourseJdbcDAO;
 import com.sega.project.enrollmentsystem.jdbc.GeneratedKeyHolderFactory;
 import org.junit.jupiter.api.Test;
@@ -37,9 +36,8 @@ public class CourseJdbcDAOTests {
     @Mock
     private GeneratedKeyHolderFactory keyHolderFactory;
 
-    // Test findAllCourses method
     @Test
-    public void TestFindAllCourses() {
+    public void testFindAllCourses() {
         List<Course> courses = new ArrayList<>();
         courses.add(new Course(5, "Physics", "Science", "SPRING2022", 5,50));
         when(jdbcTemplate.query(anyString(), any(RowMapper.class))).thenReturn(courses);
@@ -48,22 +46,18 @@ public class CourseJdbcDAOTests {
 
     }
 
-    // Test findById method
     @Test
-    public void TestFindCourseById() {
+    public void testFindCourseById() {
         List<Course> courses = new ArrayList<>();
         courses.add(new Course(5, "Physics", "Science", "SPRING2022", 5,50));
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), anyInt())).thenReturn(courses);
         Course result = courseJdbcDAO.findById(5);
         Assert.notNull(result, "Course not found");
 
-
-
     }
 
-    // Test findByNames method
     @Test
-    public void TestFindCourseByName() {
+    public void testFindCourseByName() {
         List<Course> courses = new ArrayList<>();
         courses.add(new Course(5, "Physics", "Science", "SPRING2022", 5, 50));
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), anyString())).thenReturn(courses);
@@ -71,9 +65,8 @@ public class CourseJdbcDAOTests {
         Assert.notNull(result, "Course not found");
     }
 
-    // Test findBySemester method
     @Test
-    public void TestFindCourseBySemester() {
+    public void testFindCourseBySemester() {
         List<Course> courses = new ArrayList<>();
         courses.add(new Course(5, "Physics", "Science", "SPRING2022", 5, 50));
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), anyString())).thenReturn(courses);
@@ -81,9 +74,8 @@ public class CourseJdbcDAOTests {
         Assert.notNull(result, "Course not found");
     }
 
-    // Test insertCourse method
     @Test
-    public void TestInsertCourse() {
+    public void testInsertCourse() {
         Course course = new Course(5, "Physics", "Science", "SPRING2022", 5, 50);
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder(Arrays.asList(Map.of("CourseId", 1)));
         when(keyHolderFactory.newGeneratedKeyHolder()).thenReturn(keyHolder);
@@ -92,12 +84,20 @@ public class CourseJdbcDAOTests {
         Assert.isTrue(result == 1, "Course not inserted");
     }
 
-    // Test updateCourse method
     @Test
-    public void TestUpdateCourse() {
+    public void testUpdateCourse() {
         when(jdbcTemplate.update(anyString(), anyString(), anyString(), anyString(), anyInt(), anyInt(), anyInt())).thenReturn(1);
+        when(jdbcTemplate.query(anyString(), any(RowMapper.class), anyInt())).thenReturn(Arrays.asList(new Course(5, "Physics", "Science", "SPRING2022", 5, 50)));
         int result = courseJdbcDAO.updateCourse(new Course(5, "Physics", "Science", "SPRING2022", 5, 50));
         Assert.isTrue(result == 1, "Course not updated");
+    }
+
+    @Test
+    public void testDeleteCourse() {
+        when(jdbcTemplate.update(anyString(), anyInt())).thenReturn(1);
+        when(jdbcTemplate.query(anyString(), any(RowMapper.class), anyInt())).thenReturn(Arrays.asList(new Course(5, "Physics", "Science", "SPRING2022", 5, 50)));
+        int result = courseJdbcDAO.deleteCourse(5);
+        Assert.isTrue(result == 1, "Course not deleted");
     }
 
 }

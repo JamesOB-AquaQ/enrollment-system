@@ -16,14 +16,18 @@ public class EnrolmentController {
 
     @PostMapping("students/{studentId}/enroll/{courseId}")
     public ResponseEntity<String> enrollCourse(@PathVariable int studentId, @PathVariable int courseId) {
-        int enrolled = enrolmentRepo.enrollStudentInCourse(studentId, courseId);
+        enrolmentRepo.enrollStudentInCourse(studentId, courseId);
         String body = "Student with id: " + studentId + " was enrolled in course with id: " + courseId;
-        if (enrolled > 0) {
-            return new ResponseEntity<>(body, HttpStatus.OK);
-        } else {
-            body="Student with id: " + studentId + " was not enrolled in course with id: " + courseId;
-            return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-        }
+        return new ResponseEntity<>(body, HttpStatus.OK);
+
+    }
+
+    @DeleteMapping("students/{studentId}/unenroll/{courseId}")
+    public ResponseEntity<String> unenrollCourse(@PathVariable int studentId, @PathVariable int courseId) {
+        enrolmentRepo.removeStudentFromCourse(studentId, courseId);
+        String body = "Student with id: " + studentId + " was unenrolled from course with id: " + courseId;
+        return new ResponseEntity<>(body, HttpStatus.OK);
+
     }
 
 
@@ -68,11 +72,11 @@ public class EnrolmentController {
 
         CustomErrorResponse error = new CustomErrorResponse();
 
-        error.setStatus(HttpStatus.NOT_FOUND.value());
+        error.setStatus(HttpStatus.BAD_REQUEST.value());
         error.setMessage(exc.getMessage());
         error.setTimeStamp(System.currentTimeMillis());
 
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
 
