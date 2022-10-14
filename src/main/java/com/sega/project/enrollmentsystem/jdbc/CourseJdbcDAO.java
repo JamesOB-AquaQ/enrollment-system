@@ -44,7 +44,6 @@ public class CourseJdbcDAO {
         }
     }
 
-   //find course by semester
     public List<Course> findBySemester(String semester) {
         List<Course> courses = jdbcTemplate.query("SELECT * FROM COURSE WHERE semester=?",
                 new BeanPropertyRowMapper<>(Course.class), semester);
@@ -79,7 +78,7 @@ public class CourseJdbcDAO {
     }
 
 
-    public int deleteById(int id) {
+    public int deleteCourse(int id) {
         return jdbcTemplate.update("DELETE FROM COURSE WHERE course_id=?", id);
     }
 

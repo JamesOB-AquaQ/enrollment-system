@@ -1,41 +1,30 @@
 package com.sega.project.enrollmentsystem.rest;
 
-import com.sega.project.enrollmentsystem.dto.CourseDTO;
-import com.sega.project.enrollmentsystem.entity.Course;
-import com.sega.project.enrollmentsystem.jdbc.CourseJdbcDAO;
 import com.sega.project.enrollmentsystem.jdbc.EnrolmentJdbcDAO;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
 public class EnrolmentController {
 
     @Autowired
-    EnrolmentJdbcDAO courseRepo;
-    @Autowired()
-    ModelMapper modelMapper;
+    EnrolmentJdbcDAO enrolmentRepo;
+
 
     @PostMapping("students/{studentId}/enroll/{courseId}")
     public ResponseEntity<String> enrollCourse(@PathVariable int studentId, @PathVariable int courseId) {
-        int enrolled = courseRepo.enrollStudentInCourse(studentId, courseId);
-        if (enrolled == 0) {
-            throw new EntityNotFoundException("Student with id: " + studentId+" was not enrolled in course with id: "+courseId);
+        int enrolled = enrolmentRepo.enrollStudentInCourse(studentId, courseId);
+        String body = "Student with id: " + studentId + " was enrolled in course with id: " + courseId;
+        if (enrolled > 0) {
+            return new ResponseEntity<>(body, HttpStatus.OK);
+        } else {
+            body="Student with id: " + studentId + " was not enrolled in course with id: " + courseId;
+            return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
         }
-        String body = "Student with id: " + studentId+" was enrolled in course with id: "+courseId;
-        return new ResponseEntity<>(body, HttpStatus.OK);
     }
-
-
-
 
 
     @ExceptionHandler
@@ -48,7 +37,9 @@ public class EnrolmentController {
         error.setTimeStamp(System.currentTimeMillis());
 
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    } @ExceptionHandler
+    }
+
+    @ExceptionHandler
     public ResponseEntity<CustomErrorResponse> handleException(InsufficientCreditsException exc) {
 
         CustomErrorResponse error = new CustomErrorResponse();
@@ -59,6 +50,7 @@ public class EnrolmentController {
 
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
+
     @ExceptionHandler
     public ResponseEntity<CustomErrorResponse> handleException(MaxCapacityException exc) {
 
@@ -70,6 +62,7 @@ public class EnrolmentController {
 
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
+
     @ExceptionHandler
     public ResponseEntity<CustomErrorResponse> handleException(IllegalArgumentException exc) {
 
@@ -82,8 +75,10 @@ public class EnrolmentController {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
+
+
     @ExceptionHandler
-    public ResponseEntity<CustomErrorResponse> handleException(BindException exc) {
+    public ResponseEntity<CustomErrorResponse> handleException(Exception exc) {
 
         CustomErrorResponse error = new CustomErrorResponse();
 
@@ -91,6 +86,7 @@ public class EnrolmentController {
         error.setMessage(exc.getMessage());
         error.setTimeStamp(System.currentTimeMillis());
 
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
+
 }
