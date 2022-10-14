@@ -29,7 +29,7 @@ public class CourseController {
     }
 
     @GetMapping("/courses/{courseId}")
-    public Course getCourseById(@PathVariable int courseId) {
+    public Course findCourseById(@PathVariable int courseId) {
 
         System.out.println("Result: " + courseRepo.findById(courseId));
         return courseRepo.findById(courseId);
@@ -69,7 +69,7 @@ public class CourseController {
         if (courseRepo.findById(id) == null) {
             throw new EntityNotFoundException("Course id not found - " + id);
         } else {
-            courseRepo.deleteById(id);
+            courseRepo.deleteCourse(id);
             return new ResponseEntity<>("Course #" + id + " deleted", HttpStatus.OK);
         }
     }
