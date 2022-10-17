@@ -90,4 +90,13 @@ public class StudentControllerTests {
     }
 
 
+    @Test
+    public void testGetStudentsBySemester() throws Exception{
+        List<Student> students = new ArrayList<>();
+        students.add(new Student(5,"John","Smith","2021","2025"));
+        Mockito.when(studentJdbcDAO.findBySemester(anyString())).thenReturn(students);
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/students?semester=SPRING2021")).andExpect(status().isOk()).andExpect(jsonPath("$[0].forename", Matchers.equalTo("John")));
+    }
+
+
 }

@@ -86,6 +86,24 @@ public class StudentJdbcDAO {
             throw new EntityNotFoundException("Student with id: "+id+" not present in database");
     }
 
+    public List<Student> findBySemester(String semester) {
+        List<Student> students = jdbcTemplate.query("SELECT DISTINCT Student.* FROM Student " +
+                        "INNER JOIN StudentCourse " +
+                        "ON Student.student_id = StudentCourse.student_id " +
+                        "INNER JOIN Course " +
+                        "ON StudentCourse.course_id = Course.course_id " +
+                        "WHERE Course.semester = ?",
+                new BeanPropertyRowMapper<>(Student.class), semester);
+        if(!students.isEmpty()) {
+            return students;
+        }else{
+            throw new EntityNotFoundException("No students enrolled in semester: "+semester);
+        }
+    }
+
+    // find student courses
+
+
 
 
 }

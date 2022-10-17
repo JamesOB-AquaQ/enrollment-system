@@ -5,7 +5,6 @@ import com.sega.project.enrollmentsystem.entity.Student;
 import com.sega.project.enrollmentsystem.jdbc.StudentJdbcDAO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -45,27 +44,22 @@ public class StudentController {
     public ResponseEntity<String> updateStudent(@Valid @RequestBody StudentDTO studentDTO, @PathVariable @NotBlank int id){
         Student student = modelMapper.map(studentDTO, Student.class);
         student.setStudentId(id);
-        if(studentRepo.findById(id)==null){
-            throw new EntityNotFoundException("Student id not found - "+student.getStudentId());
-        }
-        try {
-            studentRepo.update(student);
-        }catch (EmptyResultDataAccessException e){
-            throw new EntityNotFoundException("Student id not found - "+id);
-        }
+
+        studentRepo.update(student);
+
         String body = "Updated Student #"+student.getStudentId()+": "+student.getForename()+ " " + student.getSurname();
         return new ResponseEntity<String>(body, HttpStatus.OK);
     }
     @DeleteMapping("/students/{studentId}")
     public String deleteStudent(@PathVariable int studentId){
-        if(studentRepo.findById(studentId)==null){
-            throw new EntityNotFoundException("Student id not found - "+studentId);
-        }
         studentRepo.deleteById(studentId);
         return "Deleted Student #"+studentId;
     }
 
-    //Get students by semester
+    @GetMapping(path="/students", params={"semester"})
+    public List<Student> getStudentsBySemester(@RequestParam String semester){
+        return studentRepo.findBySemester(semester);
+    }
 
     @ExceptionHandler
     public ResponseEntity<CustomErrorResponse> handleException(EntityNotFoundException exc) {
@@ -89,4 +83,5 @@ public class StudentController {
 
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
+
 }

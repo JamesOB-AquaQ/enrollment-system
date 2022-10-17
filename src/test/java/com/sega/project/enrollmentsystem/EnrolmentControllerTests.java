@@ -1,6 +1,7 @@
 package com.sega.project.enrollmentsystem;
 
 
+import com.sega.project.enrollmentsystem.entity.Course;
 import com.sega.project.enrollmentsystem.jdbc.EnrolmentJdbcDAO;
 import com.sega.project.enrollmentsystem.rest.EnrolmentController;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.Arrays;
+
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -36,6 +40,20 @@ public class EnrolmentControllerTests {
         Mockito.when(enrolmentJdbcDAO.removeStudentFromCourse(anyInt(),anyInt())).thenReturn(1);
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/students/1/unenroll/1")).andExpect(status().isOk()).andExpect(jsonPath("$").value("Student with id: 1 was unenrolled from course with id: 1"));
+    }
+
+    @Test
+    public void testGetStudentCourses() throws Exception{
+        Mockito.when(enrolmentJdbcDAO.findCoursesByStudentId(anyInt())).thenReturn(Arrays.asList(new Course(1,"Maths","Maths for beginners","SPRING2021",5,100)));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/students/1/courses")).andExpect(status().isOk()).andExpect(jsonPath("$[0].courseId").value(1));
+    }
+
+    @Test
+    public void testGetStudentCoursesBySemester() throws Exception{
+        Mockito.when(enrolmentJdbcDAO.findCoursesByStudentIdAndSemester(anyInt(),anyString())).thenReturn(Arrays.asList(new Course(1,"Maths","Maths for beginners","SPRING2021",5,100)));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/students/1/courses?semester=1")).andExpect(status().isOk()).andExpect(jsonPath("$[0].courseId").value(1));
     }
 
 
