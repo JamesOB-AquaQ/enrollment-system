@@ -109,4 +109,29 @@ public class EnrolmentJdbcDAO {
               throw new IllegalArgumentException("Student is not enrolled in this course");
        }
     }
+
+    public List<Course> findCoursesByStudentId(int studentId) {
+        checkStudentExist(studentId);
+        List<Course> courses = jdbcTemplate.query("SELECT * FROM Course WHERE course_id IN (SELECT course_id FROM StudentCourse WHERE student_id=?)",
+                new BeanPropertyRowMapper<>(Course.class), studentId);
+        if (courses.isEmpty())
+            throw new EntityNotFoundException("Student with ID: "+studentId+" is not enrolled in any courses");
+        return courses;
+    }
+
+    //find student's courses by semester
+    public List<Course> findCoursesByStudentIdAndSemester(int studentId, String semester) {
+        checkStudentExist(studentId);
+        List<Course> courses = jdbcTemplate.query("SELECT Course.* FROM Course \n" +
+                        "INNER JOIN StudentCourse " +
+                        "ON Course.course_id = StudentCourse.course_id " +
+                        "INNER JOIN Student " +
+                        "ON StudentCourse.student_id = Student.student_id " +
+                        "WHERE " +
+                        "Student.student_id = ? AND Course.semester = ?",
+                new BeanPropertyRowMapper<>(Course.class), studentId, semester);
+        if (courses.isEmpty())
+            throw new EntityNotFoundException("Student with ID: "+studentId+" is not enrolled in any courses for semester: "+semester);
+        return courses;
+    }
 }

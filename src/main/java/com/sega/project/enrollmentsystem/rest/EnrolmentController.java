@@ -1,10 +1,13 @@
 package com.sega.project.enrollmentsystem.rest;
 
+import com.sega.project.enrollmentsystem.entity.Course;
 import com.sega.project.enrollmentsystem.jdbc.EnrolmentJdbcDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -30,6 +33,15 @@ public class EnrolmentController {
 
     }
 
+    @GetMapping("students/{studentId}/courses")
+    public List<Course> getStudentCourses(@PathVariable int studentId) {
+        return enrolmentRepo.findCoursesByStudentId(studentId);
+    }
+
+    @GetMapping(path="students/{studentId}/courses", params={"semester"})
+    public List<Course> getStudentCoursesBySemester(@PathVariable int studentId, @RequestParam String semester) {
+        return enrolmentRepo.findCoursesByStudentIdAndSemester(studentId, semester);
+    }
 
     @ExceptionHandler
     public ResponseEntity<CustomErrorResponse> handleException(EntityNotFoundException exc) {
