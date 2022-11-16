@@ -37,9 +37,10 @@ public class StudentControllerTests {
 
     @Test
     public void testFindStudentById() throws Exception{
-        Student student = new Student(5,"John","Smith","2021","2025");
-        Mockito.when(studentJdbcDAO.findById(anyInt())).thenReturn(student);
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/students/5")).andExpect(status().isOk()).andExpect(jsonPath("$.forename", Matchers.equalTo("John")));
+        List<Student> students = new ArrayList<>();
+        students.add(new Student(5,"John","Smith","2021","2025"));
+        Mockito.when(studentJdbcDAO.findById(anyInt())).thenReturn(students);
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/students/5")).andExpect(status().isOk()).andExpect(jsonPath("$[0].forename", Matchers.equalTo("John")));
     }
     @Test
     public void testFindAllStudents() throws Exception{
@@ -65,6 +66,7 @@ public class StudentControllerTests {
         mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
         String json =ow.writeValueAsString(student);
+        System.out.println(json);
         Mockito.when(studentJdbcDAO.insert(any(Student.class))).thenReturn(5);
         mockMvc.perform(MockMvcRequestBuilders.post("/api/students/").contentType("application/json").content(json)).andExpect(status().isOk()).andExpect(jsonPath("$", Matchers.equalTo("Student : John Smith enrolled with id: 5")));
     }
@@ -73,18 +75,21 @@ public class StudentControllerTests {
     public void testUpdateStudent() throws Exception{
         Student student = new Student(1,"John","Smith","2021","2025");
         StudentDTO studentDTO = new StudentDTO("John","Smith","2021","2025");
+        List<Student> students = new ArrayList<>();
+        students.add(new Student(5,"John","Smith","2021","2025"));
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(studentDTO);
 
         Mockito.when(studentJdbcDAO.update(any(Student.class))).thenReturn(1);
-        Mockito.when(studentJdbcDAO.findById(anyInt())).thenReturn(student);
+        Mockito.when(studentJdbcDAO.findById(anyInt())).thenReturn(students);
         mockMvc.perform(MockMvcRequestBuilders.put("/api/students/1").contentType("application/json").content(json)).andExpect(status().isOk()).andExpect(jsonPath("$", Matchers.equalTo("Updated Student #1: John Smith")));
     }
 
     @Test
     public void testDeleteStudent() throws Exception{
-        Student student = new Student(1,"John","Smith","2021","2025");
-        Mockito.when(studentJdbcDAO.findById(anyInt())).thenReturn(student);
+        List<Student> students = new ArrayList<>();
+        students.add(new Student(5,"John","Smith","2021","2025"));
+        Mockito.when(studentJdbcDAO.findById(anyInt())).thenReturn(students);
         Mockito.when(studentJdbcDAO.deleteById(anyInt())).thenReturn(1);
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/students/1")).andExpect(status().isOk()).andExpect(jsonPath("$", Matchers.equalTo("Deleted Student #1")));
     }

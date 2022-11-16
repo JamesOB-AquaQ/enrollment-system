@@ -7,7 +7,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -27,7 +26,7 @@ public class StudentController {
         return studentRepo.findAll();
     }
     @GetMapping("/students/{studentId}")
-    public Student getStudentById(@PathVariable int studentId){
+    public List<Student> getStudentById(@PathVariable int studentId){
         return studentRepo.findById(studentId);
     }
     @GetMapping(path="/students", params={"forename", "surname"})
@@ -61,27 +60,5 @@ public class StudentController {
         return studentRepo.findBySemester(semester);
     }
 
-    @ExceptionHandler
-    public ResponseEntity<CustomErrorResponse> handleException(EntityNotFoundException exc) {
-
-        CustomErrorResponse error = new CustomErrorResponse();
-
-        error.setStatus(HttpStatus.NOT_FOUND.value());
-        error.setMessage(exc.getMessage());
-        error.setTimeStamp(System.currentTimeMillis());
-
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
-    @ExceptionHandler
-    public ResponseEntity<CustomErrorResponse> handleException(BindException exc) {
-
-        CustomErrorResponse error = new CustomErrorResponse();
-
-        error.setStatus(HttpStatus.BAD_REQUEST.value());
-        error.setMessage(exc.getMessage());
-        error.setTimeStamp(System.currentTimeMillis());
-
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
 
 }

@@ -6,16 +6,16 @@ public class Student {
     private int studentId;
     private String forename;
     private String surname;
-    private String enrollmentYear;
+    private String enrolmentYear;
     private String graduationYear;
 
     public Student() {
     }
-    public Student(int studentId, String forename, String surname, String enrollmentYear, String graduationYear) {
+    public Student(int studentId, String forename, String surname, String enrolmentYear, String graduationYear) {
         this.studentId = studentId;
         this.forename = forename;
         this.surname = surname;
-        this.enrollmentYear = enrollmentYear;
+        this.enrolmentYear = enrolmentYear;
         this.graduationYear = graduationYear;
     }
 
@@ -45,12 +45,12 @@ public class Student {
         this.surname = surname;
     }
 
-    public String getEnrollmentYear() {
-        return enrollmentYear;
+    public String getEnrolmentYear() {
+        return enrolmentYear;
     }
 
-    public void setEnrollmentYear(String enrollmentYear) {
-        this.enrollmentYear = enrollmentYear;
+    public void setEnrolmentYear(String enrolmentYear) {
+        this.enrolmentYear = enrolmentYear;
     }
 
     public String getGraduationYear() {
@@ -67,7 +67,7 @@ public class Student {
                 "studentId=" + studentId +
                 ", forename='" + forename + '\'' +
                 ", surname='" + surname + '\'' +
-                ", enrollmentYear=" + enrollmentYear +
+                ", enrollmentYear=" + enrolmentYear +
                 ", graduationYear=" + graduationYear +
                 '}';
     }

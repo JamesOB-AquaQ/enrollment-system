@@ -1,15 +1,15 @@
 CREATE TABLE Student
 (
-    student_id INT NOT NULL AUTO_INCREMENT,
+    student_id INT NOT NULL IDENTITY(1,1),
     forename char(50) NOT NULL,
     surname char(50) NOT NULL,
-    enrollment_year int NOT NULL,
+    enrolment_year int NOT NULL,
     graduation_year int NOT NULL,
     PRIMARY KEY(student_id)
 );
 CREATE TABLE Course
 (
-    course_id INT NOT NULL AUTO_INCREMENT,
+    course_id INT NOT NULL IDENTITY(1,1),
     course_name char(50) NOT NULL,
     subject_area varchar(255) NOT NULL,
     semester varchar(50) NOT NULL,
@@ -26,15 +26,15 @@ CREATE TABLE StudentCourse
     CONSTRAINT PK_StudentCourse_id PRIMARY KEY (student_id,course_id)
 );
 
-INSERT INTO Student (forename,surname,enrollment_year,graduation_year)
+INSERT INTO Student (forename,surname,enrolment_year,graduation_year)
 VALUES('Jack','Brown',2020,2023);
-INSERT INTO Student (forename,surname,enrollment_year,graduation_year)
+INSERT INTO Student (forename,surname,enrolment_year,graduation_year)
 VALUES('Chad','Darby',2021,2024);
-INSERT INTO Student (forename,surname,enrollment_year,graduation_year)
+INSERT INTO Student (forename,surname,enrolment_year,graduation_year)
 VALUES('Conor','McGee',2022,2025);
-INSERT INTO Student (forename,surname,enrollment_year,graduation_year)
+INSERT INTO Student (forename,surname,enrolment_year,graduation_year)
 VALUES('Conor','McGee',2020,2024);
-INSERT INTO Student (forename,surname,enrollment_year,graduation_year)
+INSERT INTO Student (forename,surname,enrolment_year,graduation_year)
 VALUES('Jack','McGee',2022,2026);
 
 INSERT INTO Course (course_name,subject_area,semester,credit_amount,student_capacity)

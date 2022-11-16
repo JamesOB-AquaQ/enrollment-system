@@ -2,9 +2,8 @@ package com.sega.project.enrollmentsystem.jdbc;
 
 import com.sega.project.enrollmentsystem.entity.Course;
 import com.sega.project.enrollmentsystem.entity.Student;
-import com.sega.project.enrollmentsystem.rest.EntityNotFoundException;
-import com.sega.project.enrollmentsystem.rest.InsufficientCreditsException;
-import com.sega.project.enrollmentsystem.rest.MaxCapacityException;
+import com.sega.project.enrollmentsystem.rest.exceptions.EntityNotFoundException;
+import com.sega.project.enrollmentsystem.rest.exceptions.EnrolmentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -93,20 +92,20 @@ public class EnrolmentJdbcDAO {
                 if (findStudentCreditsRemainingBySemester(studentId, findSemesterByCourseId(courseId)) > 0) {
                     return jdbcTemplate.update("INSERT INTO StudentCourse (student_id, course_id) VALUES (?,?)", studentId, courseId);
                 } else {
-                    throw new InsufficientCreditsException("Insufficient Credits");
+                    throw new EnrolmentException("Insufficient Credits");
                 }
             } else {
-                throw new MaxCapacityException("Course is full");
+                throw new EnrolmentException("Course is full");
             }
         }else{
-            throw new IllegalArgumentException("Student is already enrolled in this course");
+            throw new EnrolmentException("Student is already enrolled in this course");
         }
         }
     public int removeStudentFromCourse(int studentId, int courseId) {
        if(checkIfStudentEnrolled(studentId, courseId)){
            return jdbcTemplate.update("DELETE FROM StudentCourse WHERE student_id=? AND course_id=?", studentId, courseId);
        }else{
-              throw new IllegalArgumentException("Student is not enrolled in this course");
+              throw new EnrolmentException("Student is not enrolled in this course");
        }
     }
 
@@ -119,9 +118,10 @@ public class EnrolmentJdbcDAO {
         return courses;
     }
 
-    //find student's courses by semester
+
     public List<Course> findCoursesByStudentIdAndSemester(int studentId, String semester) {
         checkStudentExist(studentId);
+        validateSemester(semester);
         List<Course> courses = jdbcTemplate.query("SELECT Course.* FROM Course \n" +
                         "INNER JOIN StudentCourse " +
                         "ON Course.course_id = StudentCourse.course_id " +
@@ -133,5 +133,10 @@ public class EnrolmentJdbcDAO {
         if (courses.isEmpty())
             throw new EntityNotFoundException("Student with ID: "+studentId+" is not enrolled in any courses for semester: "+semester);
         return courses;
+    }
+    private void validateSemester(String semester) {
+        if (semester == null || semester.isEmpty() || !semester.matches("^[A-Z]+[0-9]{4}$")) {
+            throw new IllegalArgumentException("Semester is invalid, please use format: SEASONYEAR");
+        }
     }
 }
