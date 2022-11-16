@@ -4,6 +4,8 @@ package com.sega.project.enrollmentsystem;
 import com.sega.project.enrollmentsystem.entity.Course;
 import com.sega.project.enrollmentsystem.jdbc.EnrolmentJdbcDAO;
 import com.sega.project.enrollmentsystem.rest.EnrolmentController;
+import com.sega.project.enrollmentsystem.rest.exceptions.EnrolmentException;
+import com.sega.project.enrollmentsystem.rest.exceptions.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +34,7 @@ public class EnrolmentControllerTests {
     public void testEnrollCourse() throws Exception{
         Mockito.when(enrolmentJdbcDAO.enrollStudentInCourse(anyInt(),anyInt())).thenReturn(1);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/students/1/enroll/1")).andExpect(status().isOk()).andExpect(jsonPath("$").value("Student with id: 1 was enrolled in course with id: 1"));
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/students/1/enroll/1")).andExpect(status().isOk()).andExpect(jsonPath("$.StudentID").value(1));
     }
 
     @Test
@@ -50,10 +52,22 @@ public class EnrolmentControllerTests {
     }
 
     @Test
-    public void testGetStudentCoursesBySemester() throws Exception{
+    public void testGetStudentCoursesBySemester_Ok() throws Exception{
         Mockito.when(enrolmentJdbcDAO.findCoursesByStudentIdAndSemester(anyInt(),anyString())).thenReturn(Arrays.asList(new Course(1,"Maths","Maths for beginners","SPRING2021",5,100)));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/students/1/courses?semester=1")).andExpect(status().isOk()).andExpect(jsonPath("$[0].courseId").value(1));
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/students/1/courses?semester=SPRING2021")).andExpect(status().isOk()).andExpect(jsonPath("$[0].courseId").value(1));
+    }
+    @Test
+    public void testGetStudentCoursesBySemester_NotFound() throws Exception{
+        Mockito.when(enrolmentJdbcDAO.findCoursesByStudentIdAndSemester(anyInt(),anyString())).thenThrow(new EntityNotFoundException("Student with ID: 1 is not enrolled in any courses for semester: SPRING2021"));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/students/1/courses?semester=SPRING2021")).andExpect(status().isNotFound()).andExpect(jsonPath("$.message").value("Student with ID: 1 is not enrolled in any courses for semester: SPRING2021"));
+    }
+    @Test
+    public void testEnrollCourse_CourseFull() throws Exception{
+        Mockito.when(enrolmentJdbcDAO.enrollStudentInCourse(anyInt(),anyInt())).thenThrow(new EnrolmentException("Course is full"));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/students/1/enroll/1")).andExpect(status().isBadRequest()).andExpect(jsonPath("$.message").value("Course is full"));
     }
 
 

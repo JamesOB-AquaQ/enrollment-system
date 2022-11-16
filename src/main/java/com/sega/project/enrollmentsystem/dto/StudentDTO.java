@@ -8,22 +8,18 @@ public class StudentDTO {
     @NotBlank
     private String surname;
     @NotBlank
-    private String enrollmentYear;
+    private String enrolmentYear;
     @NotBlank
     private String graduationYear;
 
     public StudentDTO() {
     }
-    public StudentDTO( String forename, String surname, String enrollmentYear, String graduationYear) {
+    public StudentDTO( String forename, String surname, String enrolmentYear, String graduationYear) {
         this.forename = forename;
         this.surname = surname;
-        this.enrollmentYear = enrollmentYear;
+        this.enrolmentYear = enrolmentYear;
         this.graduationYear = graduationYear;
     }
-
-
-
-
 
     public String getForename() {
         return forename;
@@ -41,12 +37,12 @@ public class StudentDTO {
         this.surname = surname;
     }
 
-    public String getEnrollmentYear() {
-        return enrollmentYear;
+    public String getEnrolmentYear() {
+        return enrolmentYear;
     }
 
-    public void setEnrollmentYear(String enrollmentYear) {
-        this.enrollmentYear = enrollmentYear;
+    public void setEnrolmentYear(String enrolmentYear) {
+        this.enrolmentYear = enrolmentYear;
     }
 
     public String getGraduationYear() {

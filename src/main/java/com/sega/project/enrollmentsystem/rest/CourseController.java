@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
@@ -28,7 +27,7 @@ public class CourseController {
     }
 
     @GetMapping("/courses/{courseId}")
-    public Course findCourseById(@PathVariable int courseId) {
+    public List<Course> findCourseById(@PathVariable int courseId) {
 
         System.out.println("Result: " + courseRepo.findById(courseId));
         return courseRepo.findById(courseId);
@@ -48,7 +47,6 @@ public class CourseController {
     public List<Course> getCoursesBySubject(@RequestParam String subject) {
         return courseRepo.findBySubjectArea(subject);
     }
-//
 
     @PostMapping("/courses")
     public String addCourse(@RequestBody @Valid Course course) {
@@ -74,27 +72,5 @@ public class CourseController {
     }
 
 
-    @ExceptionHandler
-    public ResponseEntity<CustomErrorResponse> handleException(EntityNotFoundException exc) {
 
-        CustomErrorResponse error = new CustomErrorResponse();
-
-        error.setStatus(HttpStatus.NOT_FOUND.value());
-        error.setMessage(exc.getMessage());
-        error.setTimeStamp(System.currentTimeMillis());
-
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<CustomErrorResponse> handleException(Exception exc) {
-
-        CustomErrorResponse error = new CustomErrorResponse();
-
-        error.setStatus(HttpStatus.BAD_REQUEST.value());
-        error.setMessage(exc.getMessage());
-        error.setTimeStamp(System.currentTimeMillis());
-
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
 }

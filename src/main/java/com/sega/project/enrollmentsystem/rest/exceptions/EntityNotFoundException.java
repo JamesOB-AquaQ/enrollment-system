@@ -1,4 +1,4 @@
-package com.sega.project.enrollmentsystem.rest;
+package com.sega.project.enrollmentsystem.rest.exceptions;
 
 public class EntityNotFoundException extends RuntimeException {
 

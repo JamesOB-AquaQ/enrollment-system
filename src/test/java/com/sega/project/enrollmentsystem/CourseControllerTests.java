@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sega.project.enrollmentsystem.entity.Course;
 import com.sega.project.enrollmentsystem.jdbc.CourseJdbcDAO;
 import com.sega.project.enrollmentsystem.rest.CourseController;
+import com.sega.project.enrollmentsystem.rest.exceptions.EntityNotFoundException;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -34,9 +35,20 @@ public class CourseControllerTests {
     private  static ObjectMapper mapper = new ObjectMapper();
 
     @Test
+    public void testFindAllCourses() throws Exception{
+        List<Course> courses = new ArrayList<>();
+        courses.add(new Course(5,"Maths","Maths for beginners","SPRING2021",5,100));
+        Mockito.when(courseJdbcDAO.findAll()).thenReturn(courses);
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/courses")).andExpect(status().isOk()).andExpect(jsonPath("$[0].courseName", Matchers.equalTo("Maths")));
+    }
+
+    @Test
     public void testFindCourseById() throws Exception{
-        Mockito.when(courseJdbcDAO.findById(anyInt())).thenReturn(new Course(1,"Maths","Maths for beginners","SPRING2021",5,100));
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/courses/1")).andExpect(status().isOk()).andExpect(jsonPath("$.courseName", Matchers.equalTo("Maths")));
+        List<Course> courses = new ArrayList<>();
+        courses.add(new Course(1,"Maths","Maths for beginners","SPRING2021",5,100));
+
+        Mockito.when(courseJdbcDAO.findById(anyInt())).thenReturn(courses);
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/courses/1")).andExpect(status().isOk()).andExpect(jsonPath("$[0].courseName", Matchers.equalTo("Maths")));
     }
 
     @Test
@@ -80,13 +92,17 @@ public class CourseControllerTests {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/courses").contentType("application/json").content(json)).andExpect(status().isOk()).andExpect(jsonPath("$", Matchers.equalTo("Course #1 added: Maths")));
     }
 
+
     @Test
     public void testUpdateCourse() throws Exception{
         Course course = new Course(1,"Maths","Maths for beginners","SPRING2021",5,100);
+        List<Course> courses = new ArrayList<>();
+        courses.add(course);
+
         mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         String json = mapper.writeValueAsString(course);
 
-        Mockito.when(courseJdbcDAO.findById(anyInt())).thenReturn(course);
+        Mockito.when(courseJdbcDAO.findById(anyInt())).thenReturn(courses);
         Mockito.when(courseJdbcDAO.updateCourse(any(Course.class))).thenReturn(1);
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/courses/1").contentType("application/json").content(json)).andExpect(status().isOk()
@@ -96,12 +112,30 @@ public class CourseControllerTests {
 
     @Test
     public void testDeleteCourse() throws Exception{
-        Course course = new Course(1,"Maths","Maths for beginners","SPRING2021",5,100);
+        List<Course> courses = new ArrayList<>();
+        courses.add(new Course(1,"Maths","Maths for beginners","SPRING2021",5,100));
 
-        Mockito.when(courseJdbcDAO.findById(anyInt())).thenReturn(course);
+
+        Mockito.when(courseJdbcDAO.findById(anyInt())).thenReturn(courses);
         Mockito.when(courseJdbcDAO.deleteCourse(anyInt())).thenReturn(1);
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/courses/1")).andExpect(status().isOk()).andExpect(jsonPath("$", Matchers.equalTo("Course #1 deleted")));
+    }
+    @Test
+    public void testExceptionHandling_IllegalArgument() throws Exception{
+        Course course = new Course(1,"Maths","Maths for beginners","SPRING2021",5,100);
+        mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+        String json = mapper.writeValueAsString(course);
+        Mockito.when(courseJdbcDAO.insertCourse(any(Course.class))).thenThrow(new IllegalArgumentException("Course name cannot be empty"));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/courses").contentType("application/json").content(json)).andExpect(status().isBadRequest()).andExpect(jsonPath("$.message", Matchers.equalTo("Course name cannot be empty")));
+    }
+    @Test
+    public void testExceptionHandling_EntityNotFound() throws Exception{
+
+        Mockito.when(courseJdbcDAO.findById(anyInt())).thenThrow(new EntityNotFoundException("Course not found"));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/courses/1")).andExpect(status().isNotFound()).andExpect(jsonPath("$.message", Matchers.equalTo("Course not found")));
     }
 
 

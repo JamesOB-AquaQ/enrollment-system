@@ -1,7 +1,9 @@
 package com.sega.project.enrollmentsystem.jdbc;
 
 import com.sega.project.enrollmentsystem.entity.Course;
-import com.sega.project.enrollmentsystem.rest.EntityNotFoundException;
+import com.sega.project.enrollmentsystem.rest.exceptions.EntityNotFoundException;
+import com.sega.project.enrollmentsystem.rest.exceptions.InvalidFieldException;
+import com.sega.project.enrollmentsystem.rest.exceptions.MissingFieldException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -31,11 +33,11 @@ public class CourseJdbcDAO {
         }
     }
 
-    public Course findById(int id) {
+    public List<Course> findById(int id) {
         List<Course> courses = jdbcTemplate.query("SELECT * FROM COURSE WHERE course_id=?",
                 new BeanPropertyRowMapper<>(Course.class), id);
         if (!courses.isEmpty()) {
-            return courses.get(0);
+            return courses;
         } else {
             throw new EntityNotFoundException("Course with id: "+id+" not present in database");
         }
@@ -46,17 +48,18 @@ public class CourseJdbcDAO {
         if (!courses.isEmpty()) {
             return courses;
         } else {
-            throw new EntityNotFoundException("Course id not present in database");
+            throw new EntityNotFoundException("No courses found with name: "+courseName);
         }
     }
 
     public List<Course> findBySemester(String semester) {
+        validateSemester(semester);
         List<Course> courses = jdbcTemplate.query("SELECT * FROM COURSE WHERE semester=?",
                 new BeanPropertyRowMapper<>(Course.class), semester);
         if (!courses.isEmpty()) {
             return courses;
         } else {
-            throw new EntityNotFoundException("Course id not present in database");
+            throw new EntityNotFoundException("No courses found for semester: "+semester);
         }
     }
     public List<Course> findBySubjectArea(String subjectArea) {
@@ -65,12 +68,12 @@ public class CourseJdbcDAO {
         if (!courses.isEmpty()) {
             return courses;
         } else {
-            throw new EntityNotFoundException("Course id not present in database");
+            throw new EntityNotFoundException("No courses with subject area: "+subjectArea);
         }
     }
     public int insertCourse(Course course) {
         KeyHolder keyHolder = keyHolderFactory.newGeneratedKeyHolder();
-
+        validateCourse(course);
         jdbcTemplate.update(c -> {
             PreparedStatement ps = c.
                     prepareStatement("INSERT INTO COURSE (course_name, subject_area, semester, credit_amount, student_capacity)" + "VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
@@ -86,8 +89,32 @@ public class CourseJdbcDAO {
 
     }
 
+    public  void validateCourse(Course course) {
+        if (course.getCourseName() == null || course.getCourseName().isEmpty()) {
+            throw new MissingFieldException("Course name cannot be empty");
+        }
+        if (course.getSubjectArea() == null || course.getSubjectArea().isEmpty()) {
+            throw new MissingFieldException("Subject area cannot be empty");
+        }
+        validateSemester(course.getSemester());
+        if (course.getCreditAmount() == 0) {
+            throw new MissingFieldException("Credit amount cannot be empty");
+        }
+        if (course.getStudentCapacity() == 0) {
+            throw new MissingFieldException("Student capacity cannot be empty");
+        }
+    }
+
+    private void validateSemester(String semester) {
+        if (semester == null || semester.isEmpty() || !semester.matches("^[A-Z]+[0-9]{4}$")) {
+            throw new InvalidFieldException("Semester is invalid, please use format: SEASONYEAR");
+        }
+    }
+
     public int updateCourse(@NotNull Course course) {
         checkCourseExists(course.getCourseId());
+        validateCourse(course);
+
         return jdbcTemplate.update("UPDATE COURSE SET course_name=?, subject_area=?, semester=?, credit_amount=?, student_capacity=? WHERE course_id=?",
                 course.getCourseName(), course.getSubjectArea(), course.getSemester(), course.getCreditAmount(), course.getStudentCapacity(), course.getCourseId());
     }
